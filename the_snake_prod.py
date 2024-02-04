@@ -27,24 +27,25 @@ GAME_TITLE = 'Snake'
 
 # Initialize pygame
 pygame.init()
-
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 icon = pygame.image.load(GAME_ICON)
 pygame.display.set_icon(icon)
 pygame.display.set_caption(GAME_TITLE)
 clock = pygame.time.Clock()
 
-# Base class for game objects
 class GameObject:
+    """Base class for game objects"""
     def __init__(self, position, color):
         self.position = position
         self.color = color
 
+    # A blank for drawing an object.
     def draw(self, surface):
         pygame.draw.rect(surface, self.color, (self.position[0] * GRID_SIZE, self.position[1] * GRID_SIZE, GRID_SIZE, GRID_SIZE))
 
-# Class for the snake object
 class Snake(GameObject):
+    """Class for the snake object"""
+    # class constructor
     def __init__(self, position, color):
         super().__init__(position, color)
         self.positions = [position]
@@ -55,6 +56,7 @@ class Snake(GameObject):
         self.body_color = SNAKE_COLOR
         self.rip = False
 
+    #Drawing an snake
     def draw(self, surface):
         for position in self.positions[:-1]:
             rect = pygame.Rect((position[0], position[1]), (GRID_SIZE, GRID_SIZE))
@@ -71,7 +73,8 @@ class Snake(GameObject):
         if self.last:
             last_rect = pygame.Rect((self.last[0], self.last[1]), (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(surface, BOARD_BACKGROUND_COLOR, last_rect)
-
+    
+    # The current head position is a snake
     def get_head_position(self):
         return self.positions[0]
 
@@ -92,7 +95,7 @@ class Snake(GameObject):
         self.positions.insert(0, new_head)
         if len(self.positions) > self.length:
             self.last = self.positions.pop()
-
+    # Processing keystrokes
     def handle_keys(self):
         keys = pygame.key.get_pressed()
         if keys[K_UP] and self.direction != DOWN:
@@ -104,34 +107,40 @@ class Snake(GameObject):
         elif keys[K_RIGHT] and self.direction != LEFT:
             self.next_direction = RIGHT
 
+    # death of a snake in a collision
     def reset(self):
         self.rip = True
 
+    # Updating the direction of the snake
     def update_direction(self):
         if self.next_direction:
             self.direction = self.next_direction
             self.next_direction = None
 
+    # Updating the snake position
     def move(self):
         self.update_direction()
         self.update_positions()
         self.check_collision()
 
-# Class for the apple object
 class Apple(Snake):
+    """A class for representing an apple"""
+    # class constructor
     def __init__(self, position, color):
         super().__init__(position, color)
         self.body_color = (255, 0, 0)
-
+    # Rendering an apple
+    
     def draw(self, surface):
         rect = pygame.Rect((self.position[0], self.position[1]), (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(surface, self.color, rect)
         pygame.draw.rect(surface, BORDER_COLOR, rect, 1)
-
+    
+    # Updating the apple position
     def move(self):
         self.position = (randrange(0, SCREEN_WIDTH, GRID_SIZE), randrange(0, SCREEN_HEIGHT, GRID_SIZE))
 
-# Main game function
+"""Main game function"""
 def main():
     # Create objects
     snake = Snake((randrange(0, GRID_WIDTH, GRID_SIZE), randrange(0, GRID_HEIGHT, GRID_SIZE)), SNAKE_COLOR)
